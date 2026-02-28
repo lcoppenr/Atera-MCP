@@ -66,6 +66,144 @@ export function registerTicketTools(server: McpServer, client: AteraClient) {
   );
 
   server.tool(
+    "update_ticket",
+    "Update an existing ticket. Change status, priority, assignment, title, etc. Use this to close, resolve, reassign, or modify tickets.",
+    {
+      ticketId: z.number().describe("The ticket ID to update"),
+      TicketTitle: z.string().optional().describe("New ticket title"),
+      TicketStatus: z.string().optional().describe("Status: Open, Pending, Resolved, Closed"),
+      TicketPriority: z.string().optional().describe("Priority: Low, Medium, High, Critical"),
+      TicketImpact: z.string().optional().describe("Impact: NoImpact, Minor, Major, SiteDown, ServerIssue, Crisis"),
+      TicketType: z.string().optional().describe("Type: Problem, Bug, Request, Other, Incident, Change"),
+      TechnicianContactID: z.number().optional().describe("Assigned technician contact ID"),
+    },
+    async ({ ticketId, ...fields }) => {
+      try {
+        const result = await client.post(`/api/v3/tickets/${ticketId}`, fields);
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "list_ticket_comments",
+    "Get all comments/replies on a ticket.",
+    {
+      ticketId: z.number().describe("The ticket ID"),
+      page: z.number().optional().describe("Page number (default 1)"),
+      itemsInPage: z.number().optional().describe("Items per page (default 20, max 50)"),
+    },
+    async ({ ticketId, ...params }) => {
+      try {
+        const result = await client.getList<unknown>(
+          `/api/v3/tickets/${ticketId}/comments`,
+          params,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_ticket_billable_duration",
+    "Get billable time duration for a ticket.",
+    {
+      ticketId: z.number().describe("The ticket ID"),
+    },
+    async ({ ticketId }) => {
+      try {
+        const result = await client.get<unknown>(
+          `/api/v3/tickets/${ticketId}/billableduration`,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_ticket_nonbillable_duration",
+    "Get non-billable time duration for a ticket.",
+    {
+      ticketId: z.number().describe("The ticket ID"),
+    },
+    async ({ ticketId }) => {
+      try {
+        const result = await client.get<unknown>(
+          `/api/v3/tickets/${ticketId}/nonbillableduration`,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_ticket_work_hours",
+    "Get work hours duration for a ticket.",
+    {
+      ticketId: z.number().describe("The ticket ID"),
+    },
+    async ({ ticketId }) => {
+      try {
+        const result = await client.get<unknown>(
+          `/api/v3/tickets/${ticketId}/workhours`,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_ticket_work_hours_records",
+    "Get detailed work hour records/entries for a ticket.",
+    {
+      ticketId: z.number().describe("The ticket ID"),
+      page: z.number().optional().describe("Page number (default 1)"),
+      itemsInPage: z.number().optional().describe("Items per page (default 20, max 50)"),
+    },
+    async ({ ticketId, ...params }) => {
+      try {
+        const result = await client.getList<unknown>(
+          `/api/v3/tickets/${ticketId}/workhoursrecords`,
+          params,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "list_resolved_closed_tickets",
+    "List tickets that have been resolved or closed, filtered by date range.",
+    {
+      page: z.number().optional().describe("Page number (default 1)"),
+      itemsInPage: z.number().optional().describe("Items per page (default 20, max 50)"),
+    },
+    async (args) => {
+      try {
+        const result = await client.getList<Ticket>(
+          "/api/v3/tickets/statusmodified",
+          args,
+        );
+        return formatResponse(result);
+      } catch (error) {
+        return formatError(error);
+      }
+    },
+  );
+
+  server.tool(
     "delete_ticket",
     "Delete a ticket by ID.",
     {
