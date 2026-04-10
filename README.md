@@ -38,9 +38,9 @@ npm run build
 
 ## Configuration
 
-### Claude Code
+### Claude Code / Cowork
 
-Add to `~/.claude/settings.json`:
+Add to your MCP config (e.g. `~/.claude/settings.json`):
 
 ```json
 {
@@ -76,10 +76,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Development
 
-Run the server directly with TypeScript (no build step):
+Set your API key as an environment variable before running — do **not** pass it inline in the command, as that will store it in shell history.
 
 ```bash
-ATERA_API_KEY=your-key npm run dev
+export ATERA_API_KEY=your-api-key-here
+npm run dev
+```
+
+Alternatively, create a `.env` file (never commit this file — add `.env` to `.gitignore`):
+
+```
+ATERA_API_KEY=your-api-key-here
 ```
 
 Build for production:
